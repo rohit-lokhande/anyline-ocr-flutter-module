@@ -1,0 +1,92 @@
+// example, app-level build.gradle
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new FileNotFoundException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.android.application'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    compileSdkVersion 33
+
+    ndkVersion '24.0.8215888' // Replace this with the version you're using
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "io.anyline.flutter.examples"
+        minSdkVersion 21
+        targetSdkVersion 31
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    packagingOptions {
+        aaptOptions {
+            // Enter any modules into "used_modules" you would like to keep and use
+            def used_modules = [
+                    "module_anyline_ocr",
+                    "module_barcode",
+                    "module_document",
+                    "module_energy",
+                    "module_id",
+                    "module_license_plate",
+                    "module_tire"
+            ].toList()
+
+            // Below is the full list of modules
+            def all_modules = [
+                    "module_anyline_ocr",
+                    "module_barcode",
+                    "module_document",
+                    "module_energy",
+                    "module_id",
+                    "module_license_plate",
+                    "module_tire"
+            ].toList()
+
+            // All used modules are kept, the rest are discarded (to shrink your app)
+            all_modules.removeAll(used_modules)
+
+            def all_removed_modules = all_modules.join(":")
+            ignoreAssetsPattern all_removed_modules
+        }
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
