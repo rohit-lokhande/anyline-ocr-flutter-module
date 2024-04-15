@@ -1,4 +1,5 @@
 import 'package:anyline_plugin_example/result.dart';
+import 'package:anyline_plugin_example/routes.dart';
 import 'package:anyline_plugin_example/scan_modes.dart';
 import 'package:anyline_plugin_example/styles.dart';
 import 'package:flutter/material.dart';
@@ -28,10 +29,10 @@ class ResultList extends StatelessWidget {
               itemBuilder: (BuildContext ctx, int index) {
                 DateTime timestamp = results[index].timestamp;
                 String timestampString = timestamp.isToday()
-                    ? 'Today, ${time.format(timestamp)}'
+                    ? 'Today, ${timestamp.formatHHmm()}'
                     : timestamp.isYesterday()
-                        ? 'Yesterday, ${time.format(timestamp)}'
-                        : fullDate.format(timestamp);
+                        ? 'Yesterday, ${timestamp.formatHHmm()}'
+                        : timestamp.formatDMYHHmm();
 
                 return results[index].scanMode.isCompositeScan()
                     ? CompositeResultListItem(results[index], timestampString)
@@ -72,7 +73,7 @@ class CompositeResultListItem extends StatelessWidget {
       child: TextButton(
           style: flatButtonStyle,
           onPressed: () {
-            Navigator.pushNamed(context, CompositeResultDisplay.routeName,
+            Navigator.pushNamed(context, Routes.compositeResultDisplay,
                 arguments: result);
           },
           child: Stack(
@@ -138,7 +139,7 @@ class ResultListItem extends StatelessWidget {
       child: TextButton(
           style: flatButtonStyle,
           onPressed: () {
-            Navigator.pushNamed(context, ResultDisplay.routeName,
+            Navigator.pushNamed(context, Routes.resultDisplay,
                 arguments: result);
           },
           child: Stack(

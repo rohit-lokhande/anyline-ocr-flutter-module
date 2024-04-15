@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:anyline_plugin_example/result.dart';
+import 'package:anyline_plugin_example/routes.dart';
 import 'package:anyline_plugin_example/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +11,6 @@ import 'package:photo_view/photo_view.dart';
 import 'scan_modes.dart';
 
 class ResultDisplay extends StatelessWidget {
-  static const routeName = '/resultDisplay';
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +39,6 @@ class ResultDisplay extends StatelessWidget {
 }
 
 class CompositeResultDisplay extends StatelessWidget {
-  static const routeName = '/compositeResultDisplay';
-
   @override
   Widget build(BuildContext context) {
     final Result result = ModalRoute.of(context)!.settings.arguments as Result;
@@ -200,7 +198,7 @@ class ResultDetails extends StatelessWidget {
             child: TextButton(
               child: Text('Show Full Image'),
               onPressed: () {
-                Navigator.pushNamed(context, FullScreenImage.routeName,
+                Navigator.pushNamed(context, Routes.fullImage,
                     arguments: imageMap!['fullImagePath']);
               },
             ),
@@ -212,8 +210,6 @@ class ResultDetails extends StatelessWidget {
 }
 
 class FullScreenImage extends StatelessWidget {
-  static const routeName = '/resultDisplay/fullImage';
-
   @override
   Widget build(BuildContext context) {
     final String fullImagePath =

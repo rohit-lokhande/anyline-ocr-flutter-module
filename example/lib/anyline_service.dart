@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:anyline_plugin/anyline_plugin.dart';
 import 'package:anyline_plugin/constants.dart';
+import 'package:anyline_plugin_example/assets.dart';
 import 'package:anyline_plugin_example/license_state.dart';
 import 'package:anyline_plugin_example/result.dart';
 import 'package:anyline_plugin_example/scan_modes.dart';
@@ -77,8 +78,8 @@ class AnylineServiceImpl implements AnylineService {
     _pluginVersion = await AnylinePlugin.pluginVersion;
 
     anylinePlugin = AnylinePlugin();
-    anylinePlugin.setCustomModelsPath("flutter_assets/custom_scripts");
-    anylinePlugin.setViewConfigsPath("flutter_assets/config");
+    anylinePlugin.setCustomModelsPath(FlutterAssets.customScripts);
+    anylinePlugin.setViewConfigsPath(FlutterAssets.config);
   }
 
   _initResultListFromSharedPreferences() async {
@@ -158,7 +159,7 @@ class AnylineServiceImpl implements AnylineService {
     String externalLicenseKeyJson = "";
     try {
       externalLicenseKeyJson =
-          await rootBundle.loadString("config/license.json");
+          await rootBundle.loadString(Config.license);
       licenseKeyMap = jsonDecode(externalLicenseKeyJson);
     } catch (e) {
       print("exception: $e");

@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:anyline_plugin/exceptions.dart';
 import 'package:anyline_plugin_example/anyline_service.dart';
 import 'package:anyline_plugin_example/result.dart';
+import 'package:anyline_plugin_example/routes.dart';
 import 'package:anyline_plugin_example/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'assets.dart';
 import 'result_display.dart';
 import 'result_list.dart';
 import 'scan_modes.dart';
@@ -18,9 +20,9 @@ class AnylineDemoApp extends StatelessWidget {
     return MaterialApp(
       title: 'Anyline Flutter Demo',
       routes: {
-        ResultDisplay.routeName: (context) => ResultDisplay(),
-        FullScreenImage.routeName: (context) => FullScreenImage(),
-        CompositeResultDisplay.routeName: (context) => CompositeResultDisplay(),
+        Routes.resultDisplay: (context) => ResultDisplay(),
+        Routes.fullImage: (context) => FullScreenImage(),
+        Routes.compositeResultDisplay: (context) => CompositeResultDisplay(),
       },
       home: Home(),
       theme: ThemeData.light().copyWith(
@@ -71,28 +73,28 @@ class _HomeState extends State<Home> {
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            elevation: 0,
-            title: const Text(
-              'Error',
-              style: TextStyle(
-                  fontFamily: "Roboto", fontWeight: FontWeight.bold),
-            ),
-            content: Text(
-              message,
-              style: TextStyle(fontFamily: "Roboto"),
-              textAlign: TextAlign.start,
-            ),
-            actions: [
-              TextButton(
-                child: Text("OK",
-                    style: TextStyle(
-                        fontFamily: "Roboto", fontWeight: FontWeight.bold)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ));
+                elevation: 0,
+                title: const Text(
+                  'Error',
+                  style: TextStyle(
+                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
+                ),
+                content: Text(
+                  message,
+                  style: TextStyle(fontFamily: "Roboto"),
+                  textAlign: TextAlign.start,
+                ),
+                actions: [
+                  TextButton(
+                    child: Text("OK",
+                        style: TextStyle(
+                            fontFamily: "Roboto", fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              ));
     }
   }
 
@@ -100,8 +102,8 @@ class _HomeState extends State<Home> {
     Navigator.pushNamed(
         context,
         result.scanMode.isCompositeScan()
-            ? CompositeResultDisplay.routeName
-            : ResultDisplay.routeName,
+            ? Routes.compositeResultDisplay
+            : Routes.resultDisplay,
         arguments: result);
   }
 
@@ -170,7 +172,7 @@ class _HomeState extends State<Home> {
         ),
         title: Center(
           child: Image.asset(
-            'assets/anyline_flutter_appbar.png',
+            ImageAssets.anylineFlutterAppbar,
             fit: BoxFit.fitHeight,
             height: 60,
           ),
@@ -188,21 +190,20 @@ class _HomeState extends State<Home> {
                 showDialog(
                     context: context,
                     builder: (_) => AlertDialog(
-                      elevation: 0,
-                      title: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            'Anyline Flutter Demo App',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )),
-                      content: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                              'SDK Version ${_anylineService.getSdkVersion()}' +
-                                  '\n' +
-                                  'Plugin Version ${_anylineService.getPluginVersion()}'
-                          )),
-                    ));
+                          elevation: 0,
+                          title: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                'Anyline Flutter Demo App',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )),
+                          content: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                  'SDK Version ${_anylineService.getSdkVersion()}' +
+                                      '\n' +
+                                      'Plugin Version ${_anylineService.getPluginVersion()}')),
+                        ));
               },
             ),
           )
@@ -257,14 +258,14 @@ class _HomeState extends State<Home> {
                 children: [
                   UseCaseButton(
                     text: 'Meter\nScanning',
-                    image: AssetImage('assets/Meter.png'),
+                    image: AssetImage(ImageAssets.meter),
                     onPressed: () {
                       scan(ScanMode.AnalogDigitalMeter);
                     },
                   ),
                   UseCaseButton(
                     text: 'Barcode',
-                    image: AssetImage('assets/Barcode.png'),
+                    image: AssetImage(ImageAssets.barcode),
                     onPressed: () {
                       scan(ScanMode.Barcode);
                     },
@@ -277,7 +278,7 @@ class _HomeState extends State<Home> {
                 children: [
                   UseCaseButton(
                     text: 'Identity',
-                    image: AssetImage('assets/ID.png'),
+                    image: AssetImage(ImageAssets.id),
                     onPressed: () {
                       setState(() {
                         _scanTab = _buildIdentity();
@@ -287,7 +288,7 @@ class _HomeState extends State<Home> {
                   ),
                   UseCaseButton(
                     text: 'Vehicle',
-                    image: AssetImage('assets/Vehicle.png'),
+                    image: AssetImage(ImageAssets.vehicle),
                     onPressed: () {
                       setState(() {
                         _scanTab = _buildVehicle();
@@ -303,7 +304,7 @@ class _HomeState extends State<Home> {
                 children: [
                   UseCaseButton(
                     text: 'OCR',
-                    image: AssetImage('assets/OCR.png'),
+                    image: AssetImage(ImageAssets.ocr),
                     onPressed: () {
                       setState(() {
                         _scanTab = _buildOCR();
@@ -313,7 +314,7 @@ class _HomeState extends State<Home> {
                   ),
                   UseCaseButton(
                     text: 'Other',
-                    image: AssetImage('assets/Other.png'),
+                    image: AssetImage(ImageAssets.other),
                     onPressed: () {
                       setState(() {
                         _scanTab = _buildOther();
@@ -536,7 +537,7 @@ class ScanButton extends StatelessWidget {
                   left: 10,
                   child: Text(text,
                       style:
-                      TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                          TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
                 ),
                 Positioned(
                   bottom: -15,
@@ -596,7 +597,7 @@ class UseCaseButton extends StatelessWidget {
                   left: 10,
                   child: Text(text,
                       style:
-                      TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                          TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
                 ),
                 Positioned(
                   bottom: -15,
