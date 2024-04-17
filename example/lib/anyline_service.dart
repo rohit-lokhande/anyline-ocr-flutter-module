@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:anyline_plugin/anyline_plugin.dart';
 import 'package:anyline_plugin/constants.dart';
+import 'package:anyline_plugin_example/assets.dart';
 import 'package:anyline_plugin_example/license_state.dart';
 import 'package:anyline_plugin_example/result.dart';
 import 'package:anyline_plugin_example/scan_modes.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as path;
@@ -77,8 +79,8 @@ class AnylineServiceImpl implements AnylineService {
     _pluginVersion = await AnylinePlugin.pluginVersion;
 
     anylinePlugin = AnylinePlugin();
-    anylinePlugin.setCustomModelsPath("flutter_assets/custom_scripts");
-    anylinePlugin.setViewConfigsPath("flutter_assets/config");
+    anylinePlugin.setCustomModelsPath(FlutterAssets.customScripts);
+    anylinePlugin.setViewConfigsPath(FlutterAssets.config);
   }
 
   _initResultListFromSharedPreferences() async {
@@ -105,24 +107,24 @@ class AnylineServiceImpl implements AnylineService {
     if (_cachePath == null) {
       return res;
     }
-    if (res.jsonMap == null) {
+    if (res.jsonMap.isEmpty) {
       return res;
     }
 
     // to avoid an exception, don't list the result that doesn't have an image
-    if (res.jsonMap!['fullImagePath'] == null ||
-        res.jsonMap!['imagePath'] == null) {
+    if (res.jsonMap['fullImagePath'] == null ||
+        res.jsonMap['imagePath'] == null) {
       return null;
     }
 
-    var savedImageDirectory = path.dirname(res.jsonMap!['fullImagePath']);
+    var savedImageDirectory = path.dirname(res.jsonMap['fullImagePath']);
 
-    var fullImageName = path.basename(res.jsonMap!['fullImagePath']);
-    var croppedImageName = path.basename(res.jsonMap!['imagePath']);
+    var fullImageName = path.basename(res.jsonMap['fullImagePath']);
+    var croppedImageName = path.basename(res.jsonMap['imagePath']);
 
     if (savedImageDirectory != _cachePath) {
-      res.jsonMap!['fullImagePath'] = path.join(_cachePath!, fullImageName);
-      res.jsonMap!['imagePath'] = path.join(_cachePath!, croppedImageName);
+      res.jsonMap['fullImagePath'] = path.join(_cachePath!, fullImageName);
+      res.jsonMap['imagePath'] = path.join(_cachePath!, croppedImageName);
     }
     return res;
   }
@@ -137,7 +139,7 @@ class AnylineServiceImpl implements AnylineService {
 
     String? stringResult = await anylinePlugin.startScanning(configJson);
 
-    print(stringResult);
+    debugPrint(stringResult);
 
     if (stringResult == 'Canceled') {
       return null;
@@ -145,11 +147,14 @@ class AnylineServiceImpl implements AnylineService {
 
     Map<String, dynamic>? jsonResult = jsonDecode(stringResult!);
 
-    return Result(jsonResult, mode, DateTime.now());
+    if (jsonResult != null) {
+      return Result(jsonResult, mode, DateTime.now());
+    }
+    return null;
   }
 
   Future<String> _loadJsonConfigFromFile(String config) async {
-    return await rootBundle.loadString("config/${config}Config.json");
+    return await rootBundle.loadString(Config.configFile(config));
   }
 
   /// Returns the licenseKey stored in associated file from the config folder.
@@ -157,11 +162,10 @@ class AnylineServiceImpl implements AnylineService {
     Map<String, dynamic>? licenseKeyMap;
     String externalLicenseKeyJson = "";
     try {
-      externalLicenseKeyJson =
-          await rootBundle.loadString("config/license.json");
+      externalLicenseKeyJson = await rootBundle.loadString(Config.license);
       licenseKeyMap = jsonDecode(externalLicenseKeyJson);
     } catch (e) {
-      print("exception: $e");
+      debugPrint("exception: $e");
     }
     return licenseKeyMap?["licenseKey"] ?? "";
   }

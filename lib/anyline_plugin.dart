@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:anyline_plugin/constants.dart';
 import 'package:anyline_plugin/exceptions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
@@ -22,9 +23,10 @@ class AnylinePlugin {
 
   /// Returns the Anyline Plugin version.
   static Future<String> get pluginVersion async {
-    final fileContent = await rootBundle.loadString('packages/anyline_plugin/pubspec.yaml');
+    final fileContent =
+        await rootBundle.loadString('packages/anyline_plugin/pubspec.yaml');
     final pubspec = Pubspec.parse(fileContent);
-    return pubspec.version?.canonicalizedVersion ??"";
+    return pubspec.version?.canonicalizedVersion ?? "";
   }
 
   void setCustomModelsPath(String customModelsPath) {
@@ -51,12 +53,11 @@ class AnylinePlugin {
       Constants.EXTRA_PLUGIN_VERSION: pluginVersion
     };
     try {
-
       final bool? result =
           await _channel.invokeMethod(Constants.METHOD_SET_LICENSE_KEY, params);
       return result;
     } on PlatformException catch (e) {
-      print("${e.message}");
+      debugPrint("${e.message}");
       throw AnylineException.parse(e);
     }
   }
@@ -80,7 +81,7 @@ class AnylinePlugin {
             await _channel.invokeMethod(Constants.METHOD_START_ANYLINE, config);
         return result;
       } on PlatformException catch (e) {
-        print("${e.message}");
+        debugPrint("${e.message}");
         throw AnylineException.parse(e);
       }
     } else {
@@ -93,9 +94,14 @@ class AnylinePlugin {
   ///
   /// Can be provided with a full configJson string or with just the license string.
   static String? getLicenseExpiryDate(String base64License) {
-    Map<String, dynamic> licenseMap =
-        _decodeBase64LicenseToJsonMap(base64License)!;
-    return licenseMap['valid'];
+    Map<String, dynamic>? licenseMap =
+        _decodeBase64LicenseToJsonMap(base64License);
+    /// ! operator is used when it can guarantee that the variable is not null in a certain scope
+    /// to overcome this code is added
+    if (licenseMap != null) {
+      return licenseMap['valid'];
+    }
+    return null;
   }
 
   // Export all cached events and return the created zip file path.
@@ -109,7 +115,7 @@ class AnylinePlugin {
           Constants.METHOD_EXPORT_CACHED_EVENTS, null);
       return result;
     } on PlatformException catch (e) {
-      print("${e.message}");
+      debugPrint("${e.message}");
       throw AnylineException.parse(e);
     }
   }

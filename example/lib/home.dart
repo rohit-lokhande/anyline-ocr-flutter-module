@@ -3,10 +3,14 @@ import 'dart:async';
 import 'package:anyline_plugin/exceptions.dart';
 import 'package:anyline_plugin_example/anyline_service.dart';
 import 'package:anyline_plugin_example/result.dart';
+import 'package:anyline_plugin_example/routes.dart';
 import 'package:anyline_plugin_example/styles.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'assets.dart';
 import 'result_display.dart';
 import 'result_list.dart';
 import 'scan_modes.dart';
@@ -18,9 +22,9 @@ class AnylineDemoApp extends StatelessWidget {
     return MaterialApp(
       title: 'Anyline Flutter Demo',
       routes: {
-        ResultDisplay.routeName: (context) => ResultDisplay(),
-        FullScreenImage.routeName: (context) => FullScreenImage(),
-        CompositeResultDisplay.routeName: (context) => CompositeResultDisplay(),
+        Routes.resultDisplay: (context) => ResultDisplay(),
+        Routes.fullImage: (context) => FullScreenImage(),
+        Routes.compositeResultDisplay: (context) => CompositeResultDisplay(),
       },
       home: Home(),
       theme: ThemeData.light().copyWith(
@@ -66,33 +70,33 @@ class _HomeState extends State<Home> {
       if (e is AnylineLicenseException) {
         message = LicenseState.LicenseKeyEmptyErrorMessage;
       }
-      print(message);
+      debugPrint(message);
 
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            elevation: 0,
-            title: const Text(
-              'Error',
-              style: TextStyle(
-                  fontFamily: "Roboto", fontWeight: FontWeight.bold),
-            ),
-            content: Text(
-              message,
-              style: TextStyle(fontFamily: "Roboto"),
-              textAlign: TextAlign.start,
-            ),
-            actions: [
-              TextButton(
-                child: Text("OK",
-                    style: TextStyle(
-                        fontFamily: "Roboto", fontWeight: FontWeight.bold)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ));
+                elevation: 0,
+                title: const Text(
+                  'Error',
+                  style: TextStyle(
+                      fontFamily: "Roboto", fontWeight: FontWeight.bold),
+                ),
+                content: Text(
+                  message,
+                  style: TextStyle(fontFamily: "Roboto"),
+                  textAlign: TextAlign.start,
+                ),
+                actions: [
+                  TextButton(
+                    child: Text("OK",
+                        style: TextStyle(
+                            fontFamily: "Roboto", fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              ));
     }
   }
 
@@ -100,8 +104,8 @@ class _HomeState extends State<Home> {
     Navigator.pushNamed(
         context,
         result.scanMode.isCompositeScan()
-            ? CompositeResultDisplay.routeName
-            : ResultDisplay.routeName,
+            ? Routes.compositeResultDisplay
+            : Routes.resultDisplay,
         arguments: result);
   }
 
@@ -170,7 +174,7 @@ class _HomeState extends State<Home> {
         ),
         title: Center(
           child: Image.asset(
-            'assets/anyline_flutter_appbar.png',
+            ImageAssets.anylineFlutterAppbar,
             fit: BoxFit.fitHeight,
             height: 60,
           ),
@@ -188,21 +192,20 @@ class _HomeState extends State<Home> {
                 showDialog(
                     context: context,
                     builder: (_) => AlertDialog(
-                      elevation: 0,
-                      title: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                            'Anyline Flutter Demo App',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )),
-                      content: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: Text(
-                              'SDK Version ${_anylineService.getSdkVersion()}' +
-                                  '\n' +
-                                  'Plugin Version ${_anylineService.getPluginVersion()}'
-                          )),
-                    ));
+                          elevation: 0,
+                          title: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                'Anyline Flutter Demo App',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )),
+                          content: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                  'SDK Version ${_anylineService.getSdkVersion()}' +
+                                      '\n' +
+                                      'Plugin Version ${_anylineService.getPluginVersion()}')),
+                        ));
               },
             ),
           )
@@ -255,45 +258,23 @@ class _HomeState extends State<Home> {
             Expanded(
               child: Row(
                 children: [
-                  UseCaseButton(
-                    text: 'Meter\nScanning',
-                    image: AssetImage('assets/Meter.png'),
-                    onPressed: () {
-                      scan(ScanMode.AnalogDigitalMeter);
-                    },
+                  Expanded(
+                    child: UseCaseButton(
+                      text: 'Meter\nScanning',
+                      image: AssetImage(ImageAssets.meter),
+                      onPressed: () {
+                        scan(ScanMode.AnalogDigitalMeter);
+                      },
+                    ),
                   ),
-                  UseCaseButton(
-                    text: 'Barcode',
-                    image: AssetImage('assets/Barcode.png'),
-                    onPressed: () {
-                      scan(ScanMode.Barcode);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  UseCaseButton(
-                    text: 'Identity',
-                    image: AssetImage('assets/ID.png'),
-                    onPressed: () {
-                      setState(() {
-                        _scanTab = _buildIdentity();
-                        _scanTabBackButtonVisible = true;
-                      });
-                    },
-                  ),
-                  UseCaseButton(
-                    text: 'Vehicle',
-                    image: AssetImage('assets/Vehicle.png'),
-                    onPressed: () {
-                      setState(() {
-                        _scanTab = _buildVehicle();
-                        _scanTabBackButtonVisible = true;
-                      });
-                    },
+                  Expanded(
+                    child: UseCaseButton(
+                      text: 'Barcode',
+                      image: AssetImage(ImageAssets.barcode),
+                      onPressed: () {
+                        scan(ScanMode.Barcode);
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -301,25 +282,59 @@ class _HomeState extends State<Home> {
             Expanded(
               child: Row(
                 children: [
-                  UseCaseButton(
-                    text: 'OCR',
-                    image: AssetImage('assets/OCR.png'),
-                    onPressed: () {
-                      setState(() {
-                        _scanTab = _buildOCR();
-                        _scanTabBackButtonVisible = true;
-                      });
-                    },
+                  Expanded(
+                    child: UseCaseButton(
+                      text: 'Identity',
+                      image: AssetImage(ImageAssets.id),
+                      onPressed: () {
+                        setState(() {
+                          _scanTab = _buildIdentity();
+                          _scanTabBackButtonVisible = true;
+                        });
+                      },
+                    ),
                   ),
-                  UseCaseButton(
-                    text: 'Other',
-                    image: AssetImage('assets/Other.png'),
-                    onPressed: () {
-                      setState(() {
-                        _scanTab = _buildOther();
-                        _scanTabBackButtonVisible = true;
-                      });
-                    },
+                  Expanded(
+                    child: UseCaseButton(
+                      text: 'Vehicle',
+                      image: AssetImage(ImageAssets.vehicle),
+                      onPressed: () {
+                        setState(() {
+                          _scanTab = _buildVehicle();
+                          _scanTabBackButtonVisible = true;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: UseCaseButton(
+                      text: 'OCR',
+                      image: AssetImage(ImageAssets.ocr),
+                      onPressed: () {
+                        setState(() {
+                          _scanTab = _buildOCR();
+                          _scanTabBackButtonVisible = true;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: UseCaseButton(
+                      text: 'Other',
+                      image: AssetImage(ImageAssets.other),
+                      onPressed: () {
+                        setState(() {
+                          _scanTab = _buildOther();
+                          _scanTabBackButtonVisible = true;
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -509,13 +524,7 @@ class ScanButton extends StatelessWidget {
   ScanButton({required this.text, this.onPressed});
 
   final String text;
-  final Function? onPressed;
-
-  final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-      padding: EdgeInsets.all(0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      foregroundColor: Colors.white,
-      backgroundColor: Styles.anylineBlue);
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -523,7 +532,7 @@ class ScanButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(10),
         child: TextButton(
-          style: flatButtonStyle,
+          style: Styles.flatButtonStyle,
           child: Container(
             height: double.infinity,
             width: double.infinity,
@@ -534,9 +543,7 @@ class ScanButton extends StatelessWidget {
                 Positioned(
                   bottom: 10,
                   left: 10,
-                  child: Text(text,
-                      style:
-                      TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                  child: Text(text, style: TextStyles.flatButtonTextStyle),
                 ),
                 Positioned(
                   bottom: -15,
@@ -544,14 +551,14 @@ class ScanButton extends StatelessWidget {
                   child: Opacity(
                     opacity: 0.25,
                     child: Text(text,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 50)),
+                        style: TextStyles.flatButtonBackgroundTextStyle
+                            .copyWith(fontSize: 50)),
                   ),
                 ),
               ],
             ),
           ),
-          onPressed: onPressed as void Function()?,
+          onPressed: onPressed,
         ),
       ),
     );
@@ -563,56 +570,45 @@ class UseCaseButton extends StatelessWidget {
 
   final ImageProvider? image;
   final String text;
-  final Function? onPressed;
-
-  final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-      padding: EdgeInsets.all(0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      foregroundColor: Colors.white,
-      backgroundColor: Styles.anylineBlue);
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: TextButton(
-          style: flatButtonStyle,
-          child: Container(
-            height: double.infinity,
-            width: double.infinity,
-            child: Stack(
-              alignment: Alignment.bottomLeft,
-              children: [
-                Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Image(
-                      image: image!,
-                      height: 60,
-                    )),
-                Positioned(
-                  bottom: 10,
-                  left: 10,
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextButton(
+        style: Styles.flatButtonStyle,
+        child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          child: Stack(
+            alignment: Alignment.bottomLeft,
+            children: [
+              Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Image(
+                    image: image!,
+                    height: 60,
+                  )),
+              Positioned(
+                bottom: 10,
+                left: 10,
+                child: Text(text, style: TextStyles.flatButtonTextStyle),
+              ),
+              Positioned(
+                bottom: -15,
+                left: -5,
+                child: Opacity(
+                  opacity: 0.25,
                   child: Text(text,
-                      style:
-                      TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                      style: TextStyles.flatButtonBackgroundTextStyle),
                 ),
-                Positioned(
-                  bottom: -15,
-                  left: -5,
-                  child: Opacity(
-                    opacity: 0.25,
-                    child: Text(text,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 40)),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          onPressed: onPressed as void Function()?,
         ),
+        onPressed: onPressed,
       ),
     );
   }

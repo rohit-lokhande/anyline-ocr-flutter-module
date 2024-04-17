@@ -10,16 +10,18 @@ class AnylineException implements Exception {
 
   static AnylineException parse(Exception e) {
     if (e is PlatformException) {
-      if (e.code == Constants.EXCEPTION_LICENSE) {
-        return AnylineLicenseException(e.message);
-      } else if (e.code == Constants.EXCEPTION_CONFIG) {
-        return AnylineConfigException(e.message);
-      } else if (e.code == Constants.EXCEPTION_NO_CAMERA_PERMISSION) {
-        return AnylineCameraPermissionException(e.message);
-      } else if (e.code == Constants.EXCEPTION_CORE) {
-        return AnylineCoreException(e.message);
-      } else {
-        return AnylineException(e.message);
+      /// This code is replaced with switch instead of if - else if
+      switch (e.code) {
+        case Constants.EXCEPTION_LICENSE:
+          return AnylineLicenseException(e.message);
+        case Constants.EXCEPTION_CONFIG:
+          return AnylineConfigException(e.message);
+        case Constants.EXCEPTION_NO_CAMERA_PERMISSION:
+          return AnylineCameraPermissionException(e.message);
+        case Constants.EXCEPTION_CORE:
+          return AnylineCoreException(e.message);
+        default:
+          return AnylineException(e.message);
       }
     }
     return AnylineException(e.toString());
