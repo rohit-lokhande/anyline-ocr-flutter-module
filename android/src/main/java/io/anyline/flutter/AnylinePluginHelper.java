@@ -20,12 +20,12 @@ public class AnylinePluginHelper {
 
     private static Toast notificationToast;
 
-    public static JSONObject wrapBarcodeInJson(Barcode b) {
+    public static JSONObject wrapBarcodeInJson(Barcode barcode) {
         JSONObject json = new JSONObject();
 
         try {
-            json.put("value", b.getValue());
-            json.put("format", b.getFormat());
+            json.put("value", barcode.getValue());
+            json.put("format", barcode.getFormat());
         } catch (JSONException jsonException) {
             // should not be possible
             Log.e(TAG, "Error while putting image path to json.", jsonException);

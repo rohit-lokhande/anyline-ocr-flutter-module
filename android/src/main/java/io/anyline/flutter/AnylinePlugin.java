@@ -39,14 +39,9 @@ public class AnylinePlugin implements
 
     private MethodChannel channel;
 
-    private String licenseKey;
-    private String pluginVersion = "";
-    private boolean enableOfflineCache = false;
     private String customModelsPath = "flutter_assets";
     private String viewConfigsPath = "flutter_assets";
 
-    private String configJson;
-    private JSONObject configObject;
     private Activity activity;
     private MethodChannel.Result result;
 
@@ -79,19 +74,20 @@ public class AnylinePlugin implements
         } else if (call.method.equals(Constants.METHOD_SET_VIEW_CONFIGS_PATH)) {
             viewConfigsPath = call.argument(Constants.EXTRA_VIEW_CONFIGS_PATH);
         } else if (call.method.equals(Constants.METHOD_SET_LICENSE_KEY)) {
-            licenseKey = call.argument(Constants.EXTRA_LICENSE_KEY);
-            pluginVersion = call.argument(Constants.EXTRA_PLUGIN_VERSION);
-            enableOfflineCache = Boolean.TRUE.equals(call.argument(Constants.EXTRA_ENABLE_OFFLINE_CACHE));
+
+            /// Create this as local variable as global variable can modified from any scope
+            String licenseKey = call.argument(Constants.EXTRA_LICENSE_KEY);
+            String pluginVersion = call.argument(Constants.EXTRA_PLUGIN_VERSION);
+            boolean enableOfflineCache = Boolean.TRUE.equals(call.argument(Constants.EXTRA_ENABLE_OFFLINE_CACHE));
             try {
                 initSdk(licenseKey, customModelsPath, pluginVersion, enableOfflineCache);
                 result.success(true);
-            }
-            catch (LicenseException le) {
+            } catch (LicenseException le) {
                 returnError(Constants.EXCEPTION_LICENSE, le.getLocalizedMessage());
             }
         } else if (call.method.equals(Constants.METHOD_START_ANYLINE)) {
-            this.configJson = call.argument(Constants.EXTRA_CONFIG_JSON);
-            scanAnyline4();
+            String configJson = call.argument(Constants.EXTRA_CONFIG_JSON);
+            scanAnyline4(configJson);
         } else if (call.method.equals(Constants.METHOD_EXPORT_CACHED_EVENTS)) {
             exportCachedEvents();
         } else {
@@ -115,17 +111,17 @@ public class AnylinePlugin implements
         AnylineSdk.init(sdkLicenseKey, activity, sdkAssetsFolder, cacheConfig, wrapperConfig);
     }
 
-    private void scanAnyline4() {
+    private void scanAnyline4(String configJson) {
         try {
-            configObject = new JSONObject(this.configJson);
-            scan();
+            JSONObject configObject = new JSONObject(configJson);
+            scan(configObject);
         } catch (JSONException e) {
             e.printStackTrace();
             returnError(Constants.EXCEPTION_CONFIG, e.getLocalizedMessage());
         }
     }
 
-    private void scan() {
+    private void scan(JSONObject configObject) {
         Intent intent = new Intent(activity, ScanActivity.class);
         intent.putExtra(Constants.EXTRA_VIEW_CONFIGS_PATH, viewConfigsPath);
         intent.putExtra(Constants.EXTRA_CONFIG_JSON, configObject.toString());
@@ -144,8 +140,7 @@ public class AnylinePlugin implements
             } else {
                 returnError(Constants.EXCEPTION_DEFAULT, "Event cache is empty.");
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             returnError(Constants.EXCEPTION_DEFAULT, e.getLocalizedMessage());
         }
     }
